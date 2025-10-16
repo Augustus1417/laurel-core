@@ -20,8 +20,34 @@ class InvalidSyntaxError(Error):
         super().__init__(pos_start, pos_end, 'Invalid Syntax', details)
 
 class RTError(Error):
-    def __init__(self, pos_start, pos_end, details):
+    def __init__(self, pos_start, pos_end, details, context):
         super().__init__(pos_start, pos_end, "Runtime Error", details)
+        self.context = context
+
+    def as_string(self):
+        tb = self.generate_traceback()
+        # Compose: traceback -> error header -> arrows
+        result = tb
+        result += f'\n{self.error_name}: {self.details}'
+        result += f'\n\n{string_with_arrows(self.pos_start.filetxt, self.pos_start, self.pos_end)}'
+        return result
+
+    def generate_traceback(self):
+        result = ''
+        ctx = self.context
+        pos = self.pos_start
+
+        while ctx:
+            entry_pos = pos if pos else ctx.parent_entry_pos
+            if entry_pos is not None:
+                result = f'  File {entry_pos.filename}, line {entry_pos.ln + 1}, in {ctx.display_name}\n' + result
+            else:
+                result = f'  In {ctx.display_name}\n' + result
+            ctx = ctx.parent
+            pos = ctx.parent_entry_pos if ctx else None
+
+        return 'Traceback (most recent call last):\n' + result
+
 
 def string_with_arrows(text, pos_start, pos_end):
     result = ''
