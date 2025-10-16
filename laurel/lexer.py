@@ -2,6 +2,7 @@ from lrl_token import *
 from constants import *
 from errors import *
 from position import *
+from parser import *
 
 class Lexer:
     def __init__(self, filename, text):
@@ -23,24 +24,23 @@ class Lexer:
                 self.advance()
             elif self.current_char in Constants.DIGITS:
                 tokens.append(self.make_number())
-                self.advance()
             elif self.current_char == '+':
-                tokens.append(Token(Type.PLUS))
+                tokens.append(Token(Type.PLUS, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '-':
-                tokens.append(Token(Type.MINUS))
+                tokens.append(Token(Type.MINUS, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '*':
-                tokens.append(Token(Type.MUL))
+                tokens.append(Token(Type.MUL, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '/':
-                tokens.append(Token(Type.DIV))
+                tokens.append(Token(Type.DIV, pos_start=self.pos))
                 self.advance()
             elif self.current_char == '(':
-                tokens.append(Token(Type.LPAREN))
+                tokens.append(Token(Type.LPAREN, pos_start=self.pos))
                 self.advance()
             elif self.current_char == ')':
-                tokens.append(Token(Type.RPAREN))
+                tokens.append(Token(Type.RPAREN, pos_start=self.pos))
                 self.advance()
             else:
                 pos_start = self.pos.copy()
@@ -48,11 +48,13 @@ class Lexer:
                 self.advance()
                 return [], IllegalCharError(pos_start, self.pos, f"'{char}'")
         
+        tokens.append(Token(Type.EOF, pos_start=self.pos))
         return tokens, None
                 
     def make_number(self):
         num_str = ''
         dot_count = 0
+        pos_start = self.pos.copy()
 
         while self.current_char != None and self.current_char in Constants.DIGITS + '.':
             if self.current_char == '.':
@@ -64,12 +66,18 @@ class Lexer:
             self.advance()
             
         if dot_count == 0:
-            return Token(Type.INT, int(num_str))
+            return Token(Type.INT, int(num_str), pos_start, self.pos)
         else:
-            return Token(Type.FLOAT, float(num_str))
+            return Token(Type.FLOAT, float(num_str), pos_start, self.pos)
     
+
 def run(filename, text):
     lexer = Lexer(filename, text)
     tokens, error = lexer.make_tokens()
+    if error: return None, error
 
-    return tokens, error
+    parser = Parser(tokens)
+    # generate AST
+    ast = parser.parse()
+
+    return ast.node, ast.error
