@@ -6,7 +6,7 @@ class Error:
         self.details = details
         
     def as_string(self):
-        result = f'{self.error_name}: {self.details}'
+        result = f'\n{self.error_name}: {self.details}'
         result += f'\nFile: {self.pos_start.filename}, in line {self.pos_start.ln + 1}'
         result += f'\n\n{string_with_arrows(self.pos_start.filetxt, self.pos_start, self.pos_end)}'
         return result
@@ -18,6 +18,10 @@ class IllegalCharError(Error):
 class InvalidSyntaxError(Error):
     def __init__(self, pos_start, pos_end, details=''):
         super().__init__(pos_start, pos_end, 'Invalid Syntax', details)
+
+class RTError(Error):
+    def __init__(self, pos_start, pos_end, details):
+        super().__init__(pos_start, pos_end, "Runtime Error", details)
 
 def string_with_arrows(text, pos_start, pos_end):
     result = ''
