@@ -8,6 +8,9 @@ class Type(Enum):
     MUL = 'MUL'
     DIV = 'DIV'
     POW = 'POW'
+    IDENTIFIER = 'IDENTIFIER'
+    KEYWORD = 'KEYWORD'
+    EQ = 'EQ'
     LPAREN = 'LPAREN'
     RPAREN = 'RPAREN'
     EOF = 'EOF'
@@ -31,6 +34,9 @@ class Token:
             self.pos_end.advance(None)
         else:
             self.pos_end = None
+
+    def matches(self, type_, value):
+        return self.type == type_ and self.value == value
 
     def __repr__(self):
         if self.value is not None:

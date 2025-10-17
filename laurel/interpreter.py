@@ -1,6 +1,6 @@
-from runtime import *
-from number import *
-from lrl_token import *
+from runtime import RTResult
+from number import Number
+from lrl_token import Type
 
 class Context:
     def __init__(self, display_name, parent=None, parent_entry_pos=None):

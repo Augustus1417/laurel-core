@@ -1,7 +1,10 @@
 from lexer import Lexer
 from parser import Parser
-from interpreter import Interpreter, Context
+from interpreter import Interpreter, Context, SymbolTable, Number
 
+global_symbol_table = SymbolTable()
+global_symbol_table.set("null", Number(0))
+ 
 def run(filename, text):
     lexer = Lexer(filename, text)
     tokens, error = lexer.make_tokens()
@@ -15,6 +18,7 @@ def run(filename, text):
     # run program
     interpreter = Interpreter()
     context = Context('<program>')
+    context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
 
     return result.value, result.error

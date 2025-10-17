@@ -1,4 +1,3 @@
-from runtime import RTResult
 from errors import RTError
 
 class Number:
