@@ -1,6 +1,5 @@
-from lrl_token import *
-from errors import *
-from parser import *
+from lrl_token import Type
+from errors import InvalidSyntaxError
 from nodes import *
 
 class ParseResult:
@@ -100,6 +99,31 @@ class Parser:
     def term(self):
         return self.bin_op(self.factor, (Type.MUL, Type.DIV))
 
+    def arith_expr(self):
+        return self.bin_op(self.term, (Type.PLUS, Type.MINUS))
+
+    def comp_expr(self):
+        res = ParseResult()
+
+        if self.current_tok.matches(Type.KEYWORD, 'NOT'):
+            op_tok = self.current_tok
+            res.register_advancement()
+            self.advance()
+
+            node = res.register(self.comp_expr())
+            if res.error: return res
+            return res.success(UnaryOpNode(op_tok, node))
+    
+        node = res.register(self.bin_op(self.arith_expr, (Type.EE,Type.NE,Type.LT, Type.GT, Type.LTE, Type.GTE)))
+
+        if res.error:
+            return res.failure(InvalidSyntaxError(
+                self.current_tok.pos_start, self.current_tok.pos_end,
+                "Expected int, float, identifier, '-', '+', '(', or 'NOT'"
+            ))
+        
+        return res.success(node)
+
     def expr(self):
         res = ParseResult()
         if self.current_tok.matches(Type.KEYWORD, 'VAR'):
@@ -128,7 +152,7 @@ class Parser:
             if res.error:return res
             return res.success(VarAssignNode(var_name, expr))
 
-        node = res.register(self.bin_op(self.term, (Type.PLUS, Type.MINUS)))
+        node = res.register(self.bin_op(self.comp_expr, ((Type.KEYWORD, "AND"), (Type.KEYWORD, "OR"))))
 
         if res.error: 
             return res.failure(InvalidSyntaxError(
@@ -145,7 +169,7 @@ class Parser:
         left = res.register(func_a())
         if res.error: return res
 
-        while self.current_tok.type in ops:
+        while self.current_tok.type in ops or (self.current_tok.type, self.current_tok.value) in ops:
             op_tok = self.current_tok
             res.register_advancement()
             self.advance()

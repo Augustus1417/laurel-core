@@ -13,6 +13,12 @@ class Type(Enum):
     EQ = 'EQ'
     LPAREN = 'LPAREN'
     RPAREN = 'RPAREN'
+    EE = 'EE'
+    NE = 'NE'
+    LT = 'LT'
+    GT = 'GT'
+    LTE = 'LTE'
+    GTE = 'GTE'
     EOF = 'EOF'
 
 

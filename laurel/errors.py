@@ -19,6 +19,10 @@ class InvalidSyntaxError(Error):
     def __init__(self, pos_start, pos_end, details=''):
         super().__init__(pos_start, pos_end, 'Invalid Syntax', details)
 
+class ExpectedCharError(Error):
+    def __init__(self, pos_start, pos_end, details=''):
+        super().__init__(pos_start, pos_end, 'Expected Character', details)
+
 class RTError(Error):
     def __init__(self, pos_start, pos_end, details, context):
         super().__init__(pos_start, pos_end, "Runtime Error", details)
@@ -46,7 +50,7 @@ class RTError(Error):
             ctx = ctx.parent
             pos = ctx.parent_entry_pos if ctx else None
 
-        return 'Traceback (most recent call last):\n' + result
+        return '\nTraceback (most recent call last):\n' + result
 
 
 def string_with_arrows(text, pos_start, pos_end):
