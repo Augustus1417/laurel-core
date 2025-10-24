@@ -11,7 +11,11 @@ class Constants:
         'VAR',
         'AND',
         'OR',
-        'NOT'
+        'NOT',
+        'IF',
+        'THEN',
+        'ELIF',
+        'ELSE'
     ]
 
 class Position:

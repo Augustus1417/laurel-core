@@ -33,4 +33,4 @@ while True:
     result, error = run('<shell>',text)
 
     if error: print(error.as_string())
-    else: print(result)
+    elif result: print(result)
